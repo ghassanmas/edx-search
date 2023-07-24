@@ -477,6 +477,7 @@ class ElasticSearchEngine(SearchEngine):
                aggregation_terms=None,
                exclude_ids=None,
                use_field_match=False,
+               sort_by_number=False,
                **kwargs):  # pylint: disable=arguments-differ, unused-argument
         """
         Implements call to search the index for the desired content.
@@ -654,6 +655,10 @@ class ElasticSearchEngine(SearchEngine):
             body["aggs"] = _process_aggregation_terms(aggregation_terms)
 
         try:
+            #Here we set the sort by number asnc 
+            #Ref: https://www.elastic.co/guide/en/elasticsearch/reference/7.17/getting-started.html
+            if sort_by_number:
+               body["sort"] = [{"number":"asc"}]
             es_response = self._es.search(index=self._prefixed_index_name, body=body, **kwargs)
         except exceptions.ElasticsearchException as ex:
             log.exception("error while searching index - %r", ex)
